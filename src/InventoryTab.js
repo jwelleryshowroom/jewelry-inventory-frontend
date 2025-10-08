@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import AddProductForm from "./AddProductForm";
 import axios from "axios";
+import { toast } from "react-toastify"; // ✅ added toast import
 
 const InventoryTab = memo(function InventoryTab({
   products,
@@ -165,24 +166,25 @@ const InventoryTab = memo(function InventoryTab({
                             <FaMinusCircle /> Sell Qty
                           </button>
 
+                          {/* ✅ Modern archive button with toast */}
                           <button
                             className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium px-3 py-1 rounded-full shadow-md transition-transform transform hover:scale-105"
                             onClick={async () => {
-                              if (
-                                !window.confirm(
-                                  "Are you sure you want to archive this product?"
-                                )
-                              )
-                                return;
                               try {
                                 await axios.put(
                                   `${API_BASE_URL}/api/products/soft-delete/${p._id}`
                                 );
-                                devAlert("✅ Product archived successfully!");
+                                toast.info("📦 Product archived successfully!", {
+                                  position: "top-right",
+                                  autoClose: 3000,
+                                });
                                 fetchProducts();
                               } catch (err) {
                                 console.error(err);
-                                devAlert("❌ Failed to archive product");
+                                toast.error("❌ Failed to archive product.", {
+                                  position: "top-right",
+                                  autoClose: 3000,
+                                });
                               }
                             }}
                           >

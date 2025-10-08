@@ -3,6 +3,8 @@ import axios from "axios";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { FaFileExport, FaTrash } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify"; // ✅ added toast
+import "react-toastify/dist/ReactToastify.css";
 
 import InventoryTab from "./InventoryTab";
 import TailwindLoader from "./TailwindLoader";
@@ -56,29 +58,28 @@ function App() {
     }
   };
 
-const handleAddProduct = async (data) => {
-  console.log("📦 Add Product Triggered — Sending Data:", data); // 👈 Add this line
+  const handleAddProduct = async (data) => {
+    console.log("📦 Add Product Triggered — Sending Data:", data);
 
-  try {
-    const res = await axios.post(`${API_BASE_URL}/api/products/add`, data);
-    console.log("✅ API Response:", res.data); // 👈 Add this too
-    devAlert("✅ Product added successfully!");
-    fetchProducts();
-    setShowAddProduct(false);
-    return true;
-} catch (err) {
-  console.error("❌ Add Product API Error:", err.response?.data || err.message || err);
-  devAlert("❌ Failed to add product");
-  return false;
-}
-};
-
+    try {
+      const res = await axios.post(`${API_BASE_URL}/api/products/add`, data);
+      console.log("✅ API Response:", res.data);
+      toast.success("✅ Product added successfully!");
+      fetchProducts();
+      setShowAddProduct(false);
+      return true;
+    } catch (err) {
+      console.error("❌ Add Product API Error:", err.response?.data || err.message || err);
+      toast.error("❌ Failed to add product");
+      return false;
+    }
+  };
 
   const submitRowAction = async () => {
     if (!rowAction?.id || !rowAction?.mode) return;
     const qty = Number(rowAction.value || 0);
     if (!qty) {
-      devAlert("Please enter a quantity");
+      toast.info("Please enter a quantity");
       return;
     }
     try {
@@ -88,12 +89,12 @@ const handleAddProduct = async (data) => {
         `${API_BASE_URL}/api/products/update/${rowAction.id}`,
         payload
       );
-      devAlert("✅ Quantity updated successfully!");
+      toast.success("✅ Quantity updated successfully!");
       fetchProducts();
       setRowAction(null);
     } catch (err) {
       console.error(err);
-      devAlert("❌ Failed to update quantity");
+      toast.error("❌ Failed to update quantity");
     }
   };
 
@@ -112,129 +113,127 @@ const handleAddProduct = async (data) => {
       link.download = `inventory_${type}_${Date.now()}.xlsx`;
       link.click();
       setShowExportPopup(false);
+      toast.success("📤 Export successful!");
     } catch (err) {
       console.error("❌ Export failed:", err);
-      devAlert("Export failed");
+      toast.error("❌ Export failed");
     }
   };
 
-// ✅ Calendar Tab - Modernized
-const CalendarTab = () => {
-  const disableFutureDates = ({ date }) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return date > today;
-  };
+  // ✅ Calendar Tab - Modernized
+  const CalendarTab = () => {
+    const disableFutureDates = ({ date }) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return date > today;
+    };
 
-  const productsByDate = products
-    .filter((p) => {
-      const d = new Date(p.updatedAt || p.createdAt);
-      return (
-        d.getFullYear() === selectedDate.getFullYear() &&
-        d.getMonth() === selectedDate.getMonth() &&
-        d.getDate() === selectedDate.getDate()
-      );
-    })
-    .sort((a, b) => {
-      if (a.isActive && !b.isActive) return -1;
-      if (!a.isActive && b.isActive) return 1;
-      return 0;
-    });
+    const productsByDate = products
+      .filter((p) => {
+        const d = new Date(p.updatedAt || p.createdAt);
+        return (
+          d.getFullYear() === selectedDate.getFullYear() &&
+          d.getMonth() === selectedDate.getMonth() &&
+          d.getDate() === selectedDate.getDate()
+        );
+      })
+      .sort((a, b) => {
+        if (a.isActive && !b.isActive) return -1;
+        if (!a.isActive && b.isActive) return 1;
+        return 0;
+      });
 
-  return (
-    <div className="flex flex-col lg:flex-row gap-8 animate-fadeIn">
-      {/* 📅 Calendar Section */}
-      <div className="lg:w-1/3 bg-white shadow-lg rounded-2xl p-6 border border-gray-200 hover:shadow-xl transition-shadow duration-300">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
-          📆 Select a Date
-        </h2>
-        <Calendar
-          onChange={setSelectedDate}
-          value={selectedDate}
-          tileDisabled={disableFutureDates}
-          className="transition-all duration-300"
-        />
-      </div>
-
-      {/* 📊 Transactions Table */}
-      <div className="lg:w-2/3 bg-white shadow-lg rounded-2xl p-6 border border-gray-200 hover:shadow-xl transition-all duration-300">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-800">
-            Products on{" "}
-            {selectedDate.getFullYear()}-
-            {(selectedDate.getMonth() + 1).toString().padStart(2, "0")}- 
-            {selectedDate.getDate().toString().padStart(2, "0")}
-          </h3>
-          <button
-            className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-5 py-2 rounded-full shadow-md transition-transform transform hover:scale-105"
-            onClick={() => setShowExportPopup(true)}
-          >
-            <FaFileExport /> Export
-          </button>
+    return (
+      <div className="flex flex-col lg:flex-row gap-8 animate-fadeIn">
+        {/* 📅 Calendar Section */}
+        <div className="lg:w-1/3 bg-white shadow-lg rounded-2xl p-6 border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
+            📆 Select a Date
+          </h2>
+          <Calendar
+            onChange={setSelectedDate}
+            value={selectedDate}
+            tileDisabled={disableFutureDates}
+            className="transition-all duration-300"
+          />
         </div>
 
-        {productsByDate.length > 0 ? (
-          <div className="overflow-x-auto rounded-lg border border-gray-200">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="px-4 py-2 text-left">SKU</th>
-                  <th className="px-4 py-2 text-left">Name</th>
-                  <th className="px-4 py-2 text-center">Opening</th>
-                  <th className="px-4 py-2 text-center">Added</th>
-                  <th className="px-4 py-2 text-center">Sold</th>
-                  <th className="px-4 py-2 text-center">Closing</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {productsByDate.map((p) => (
-                  <tr
-                    key={p._id}
-                    className="bg-white hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="px-4 py-2">{p.sku}</td>
-                    <td
-                      className={`px-4 py-2 uppercase flex items-center gap-2 ${
-                        p.isActive === false ? "text-gray-500 text-sm" : ""
-                      }`}
-                    >
-                      {p.name}
-                      {p.isActive === false && (
-                        <span
-                          className="text-gray-400 cursor-pointer hover:text-red-500 transition"
-                          title="Permanently delete this archived product"
-                          onClick={async () => {
-                            if (
-                              !window.confirm(
-                                "⚠️ This will permanently delete this product. Are you sure?"
-                              )
-                            )
-                              return;
-                            try {
-                              await axios.delete(
-                                `${API_BASE_URL}/api/products/delete/${p._id}`
-                              );
-                              devAlert("🗑️ Product permanently deleted");
-                              fetchProducts();
-                            } catch (err) {
-                              console.error(err);
-                              devAlert("❌ Failed to delete permanently");
-                            }
-                          }}
-                        >
-                          <FaTrash />
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-2 text-center">{p.openingQty}</td>
-                    <td className="px-4 py-2 text-center">{p.addedQty}</td>
-                    <td className="px-4 py-2 text-center">{p.soldQty}</td>
-                    <td className="px-4 py-2 text-center">{p.closingQty}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* 📊 Transactions Table */}
+        <div className="lg:w-2/3 bg-white shadow-lg rounded-2xl p-6 border border-gray-200 hover:shadow-xl transition-all duration-300">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-800">
+              Products on{" "}
+              {selectedDate.getFullYear()}-
+              {(selectedDate.getMonth() + 1).toString().padStart(2, "0")}-
+              {selectedDate.getDate().toString().padStart(2, "0")}
+            </h3>
+            <button
+              className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-5 py-2 rounded-full shadow-md transition-transform transform hover:scale-105"
+              onClick={() => setShowExportPopup(true)}
+            >
+              <FaFileExport /> Export
+            </button>
           </div>
+
+          {productsByDate.length > 0 ? (
+            <div className="overflow-x-auto rounded-lg border border-gray-200">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="px-4 py-2 text-left">SKU</th>
+                    <th className="px-4 py-2 text-left">Name</th>
+                    <th className="px-4 py-2 text-center">Opening</th>
+                    <th className="px-4 py-2 text-center">Added</th>
+                    <th className="px-4 py-2 text-center">Sold</th>
+                    <th className="px-4 py-2 text-center">Closing</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {productsByDate.map((p) => (
+                    <tr
+                      key={p._id}
+                      className="bg-white hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="px-4 py-2">{p.sku}</td>
+                      <td
+                        className={`px-4 py-2 uppercase flex items-center gap-2 ${
+                          p.isActive === false ? "text-gray-500 text-sm" : ""
+                        }`}
+                      >
+                        {p.name}
+                        {p.isActive === false && (
+                          <span
+                            className="text-gray-400 cursor-pointer hover:text-red-500 transition"
+                            title="Permanently delete this archived product"
+                            onClick={async () => {
+                              try {
+                                await axios.delete(
+                                  `${API_BASE_URL}/api/products/delete/${p._id}`
+                                );
+                                toast.success("🗑️ Product permanently deleted!", {
+                                  position: "top-right",
+                                  autoClose: 3000,
+                                });
+                                fetchProducts();
+                              } catch (err) {
+                                console.error(err);
+                                toast.error("❌ Failed to delete product.");
+                              }
+                            }}
+                          >
+                            <FaTrash />
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-2 text-center">{p.openingQty}</td>
+                      <td className="px-4 py-2 text-center">{p.addedQty}</td>
+                      <td className="px-4 py-2 text-center">{p.soldQty}</td>
+                      <td className="px-4 py-2 text-center">{p.closingQty}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           ) : (
             <div className="text-center text-gray-500 mt-8">
               <div className="flex justify-center mb-4">
@@ -247,12 +246,10 @@ const CalendarTab = () => {
               </p>
             </div>
           )}
-
+        </div>
       </div>
-    </div>
-  );
-};
-
+    );
+  };
 
   if (isLoading) return <SplashScreen />;
 
@@ -406,6 +403,8 @@ const CalendarTab = () => {
       </main>
 
       <Footer />
+      {/* ✅ Toast container globally */}
+      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
     </div>
   );
 }
