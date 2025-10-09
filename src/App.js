@@ -1,9 +1,10 @@
+// src/App.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { FaFileExport, FaTrash } from "react-icons/fa";
-import { ToastContainer, toast } from "react-toastify"; // ✅ added toast
+import { FaFileExport } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import InventoryTab from "./InventoryTab";
@@ -11,18 +12,19 @@ import TailwindLoader from "./TailwindLoader";
 import SplashScreen from "./SplashScreen";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import Login from "./pages/Login";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
+import { useAuth } from "./context/AuthContext";
 
 const API_BASE_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:5000"
     : "https://jewelry-inventory-backend.onrender.com";
 
-const devAlert = (msg) => {
-  if (process.env.NODE_ENV === "development") alert(msg);
-  else console.log("[INFO]", msg);
-};
-
 function App() {
+  const { isAuthenticated, token, role, logout, loading: authLoading } = useAuth();
+
   const [products, setProducts] = useState([]);
   const [activeTab, setActiveTab] = useState("inventory");
   const [showAddProduct, setShowAddProduct] = useState(false);
@@ -35,60 +37,83 @@ function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  // Theme (Dark Mode)
+// inside App.js
+const [darkMode, setDarkMode] = useState(() => {
+  // initialize from localStorage
+  return localStorage.getItem("theme") === "dark";
+});
 
-  // ✅ Debounce search
+useEffect(() => {
+  if (darkMode) {
+    localStorage.setItem("theme", "dark");
+    document.documentElement.classList.add("dark");
+  } else {
+    localStorage.setItem("theme", "light");
+    document.documentElement.classList.remove("dark");
+  }
+}, [darkMode]);
+
+
+
+
+  
+
+  // Debounce search
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedQuery(searchQuery);
-    }, 300);
+    const handler = setTimeout(() => setDebouncedQuery(searchQuery), 300);
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
+  // Attach token to axios
   useEffect(() => {
-    fetchProducts().finally(() => setIsLoading(false));
-  }, []);
+    if (token) axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    else delete axios.defaults.headers.common["Authorization"];
+  }, [token]);
+
+  // Fetch products when authenticated
+  useEffect(() => {
+    const load = async () => {
+      if (isAuthenticated) {
+        setIsLoading(true);
+        await fetchProducts();
+        setIsLoading(false);
+      } else {
+        setProducts([]);
+        setIsLoading(false);
+      }
+    };
+    load();
+  }, [isAuthenticated]);
 
   const fetchProducts = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/api/products/all`);
       setProducts(res.data);
     } catch (err) {
-      console.error(err);
-      devAlert("Failed to fetch products");
+      console.error("Failed to fetch products", err);
     }
   };
 
   const handleAddProduct = async (data) => {
-    console.log("📦 Add Product Triggered — Sending Data:", data);
-
     try {
-      const res = await axios.post(`${API_BASE_URL}/api/products/add`, data);
-      console.log("✅ API Response:", res.data);
+      await axios.post(`${API_BASE_URL}/api/products/add`, data);
       toast.success("✅ Product added successfully!");
       fetchProducts();
       setShowAddProduct(false);
-      return true;
     } catch (err) {
-      console.error("❌ Add Product API Error:", err.response?.data || err.message || err);
+      console.error("Add Product Error:", err);
       toast.error("❌ Failed to add product");
-      return false;
     }
   };
 
   const submitRowAction = async () => {
     if (!rowAction?.id || !rowAction?.mode) return;
     const qty = Number(rowAction.value || 0);
-    if (!qty) {
-      toast.info("Please enter a quantity");
-      return;
-    }
+    if (!qty) return toast.info("Please enter a quantity");
     try {
-      const payload =
-        rowAction.mode === "add" ? { addQty: qty } : { sellQty: qty };
-      await axios.put(
-        `${API_BASE_URL}/api/products/update/${rowAction.id}`,
-        payload
-      );
+      const payload = rowAction.mode === "add" ? { addQty: qty } : { sellQty: qty };
+      await axios.put(`${API_BASE_URL}/api/products/update/${rowAction.id}`, payload);
       toast.success("✅ Quantity updated successfully!");
       fetchProducts();
       setRowAction(null);
@@ -115,41 +140,58 @@ function App() {
       setShowExportPopup(false);
       toast.success("📤 Export successful!");
     } catch (err) {
-      console.error("❌ Export failed:", err);
+      console.error("Export failed:", err);
       toast.error("❌ Export failed");
     }
   };
 
-  // ✅ Calendar Tab - Modernized
+  // Calendar Tab Logic
   const CalendarTab = () => {
+    const [transactions, setTransactions] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     const disableFutureDates = ({ date }) => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       return date > today;
     };
 
-    const productsByDate = products
-      .filter((p) => {
-        const d = new Date(p.updatedAt || p.createdAt);
-        return (
-          d.getFullYear() === selectedDate.getFullYear() &&
-          d.getMonth() === selectedDate.getMonth() &&
-          d.getDate() === selectedDate.getDate()
-        );
-      })
-      .sort((a, b) => {
-        if (a.isActive && !b.isActive) return -1;
-        if (!a.isActive && b.isActive) return 1;
-        return 0;
-      });
+    const fetchTransactions = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(`${API_BASE_URL}/api/products/transactions/by-date`);
+        setTransactions(res.data || []);
+      } catch (err) {
+        console.error("Failed to load transactions", err);
+        toast.error("Failed to load transactions");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    useEffect(() => {
+      fetchTransactions();
+    }, []);
+
+    const filteredTransactions = transactions.filter((t) => {
+      const txDate = new Date(t.date).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" });
+      const selDate = selectedDate.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" });
+      return txDate === selDate;
+    });
+
+    const orderedTransactions = [...filteredTransactions].sort((a, b) => {
+      if (a.isActive === b.isActive) return 0;
+      return a.isActive ? -1 : 1;
+    });
 
     return (
       <div className="flex flex-col lg:flex-row gap-8 animate-fadeIn">
-        {/* 📅 Calendar Section */}
+        {/* Calendar */}
         <div className="lg:w-1/3 bg-white shadow-lg rounded-2xl p-6 border border-gray-200 hover:shadow-xl transition-shadow duration-300">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
-            📆 Select a Date
-          </h2>
+          <h2 className="calendar-heading text-xl font-semibold mb-4 text-center">
+  📆 Select a Date
+</h2>
+
           <Calendar
             onChange={setSelectedDate}
             value={selectedDate}
@@ -158,13 +200,13 @@ function App() {
           />
         </div>
 
-        {/* 📊 Transactions Table */}
-        <div className="lg:w-2/3 bg-white shadow-lg rounded-2xl p-6 border border-gray-200 hover:shadow-xl transition-all duration-300">
+        {/* Transactions */}
+        <div className="lg:w-2/3 bg-white shadow-lg rounded-2xl p-6 border border-gray-200 hover:shadow-xl transition-shadow duration-300">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-800">
-              Products on{" "}
+              Transactions on{" "}
               {selectedDate.getFullYear()}-
-              {(selectedDate.getMonth() + 1).toString().padStart(2, "0")}-
+              {(selectedDate.getMonth() + 1).toString().padStart(2, "0")}- 
               {selectedDate.getDate().toString().padStart(2, "0")}
             </h3>
             <button
@@ -175,7 +217,9 @@ function App() {
             </button>
           </div>
 
-          {productsByDate.length > 0 ? (
+          {loading ? (
+            <div className="text-center text-gray-500 py-8">Loading transactions...</div>
+          ) : orderedTransactions.length > 0 ? (
             <div className="overflow-x-auto rounded-lg border border-gray-200">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-100">
@@ -189,47 +233,30 @@ function App() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {productsByDate.map((p) => (
-                    <tr
-                      key={p._id}
-                      className="bg-white hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-4 py-2">{p.sku}</td>
-                      <td
-                        className={`px-4 py-2 uppercase flex items-center gap-2 ${
-                          p.isActive === false ? "text-gray-500 text-sm" : ""
-                        }`}
-                      >
-                        {p.name}
-                        {p.isActive === false && (
-                          <span
-                            className="text-gray-400 cursor-pointer hover:text-red-500 transition"
-                            title="Permanently delete this archived product"
-                            onClick={async () => {
-                              try {
-                                await axios.delete(
-                                  `${API_BASE_URL}/api/products/delete/${p._id}`
-                                );
-                                toast.success("🗑️ Product permanently deleted!", {
-                                  position: "top-right",
-                                  autoClose: 3000,
-                                });
-                                fetchProducts();
-                              } catch (err) {
-                                console.error(err);
-                                toast.error("❌ Failed to delete product.");
-                              }
-                            }}
-                          >
-                            <FaTrash />
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-2 text-center">{p.openingQty}</td>
-                      <td className="px-4 py-2 text-center">{p.addedQty}</td>
-                      <td className="px-4 py-2 text-center">{p.soldQty}</td>
-                      <td className="px-4 py-2 text-center">{p.closingQty}</td>
-                    </tr>
+                  {orderedTransactions.map((t) => (
+<tr
+  key={t._id}
+  className={`${
+    t.isActive === false
+      ? "archived-row"
+      : "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+  }`}
+>
+  <td className="px-4 py-2">{t.sku}</td>
+  <td className="px-4 py-2 uppercase flex items-center gap-2">
+    {t.productName}
+    {t.isActive === false && (
+      <span className="archived-icon" title="Archived Product">
+        📦
+      </span>
+    )}
+  </td>
+  <td className="px-4 py-2 text-center">{t.openingQty}</td>
+  <td className="px-4 py-2 text-center">{t.addedQty}</td>
+  <td className="px-4 py-2 text-center">{t.soldQty}</td>
+  <td className="px-4 py-2 text-center">{t.closingQty}</td>
+</tr>
+
                   ))}
                 </tbody>
               </table>
@@ -240,10 +267,6 @@ function App() {
                 <span className="text-6xl">📭</span>
               </div>
               <h3 className="text-xl font-semibold">No Transactions Found</h3>
-              <p className="text-sm text-gray-400 mt-2">
-                It looks like there are no inventory changes recorded for this date.<br />
-                Try selecting a different date on the calendar.
-              </p>
             </div>
           )}
         </div>
@@ -251,17 +274,34 @@ function App() {
     );
   };
 
+  // Auth logic
+  if (authLoading) return <SplashScreen />;
+  if (!isAuthenticated) {
+    return (
+      <>
+        <Login />
+        <ToastContainer position="top-right" autoClose={3000} theme="colored" />
+      </>
+    );
+  }
+
   if (isLoading) return <SplashScreen />;
 
   return (
     <div className="font-sans bg-gray-50 min-h-screen flex flex-col">
-      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Header
+  activeTab={activeTab}
+  setActiveTab={setActiveTab}
+  logout={logout}
+  role={role}
+/>
+
 
       <main className="flex-grow p-6 max-w-7xl mx-auto w-full">
         <TailwindLoader />
 
-        {/* Tab Buttons */}
-        <div className="flex justify-center mb-6 space-x-4">
+        {/* Tabs only — Profile dropdown removed */}
+        <div className="flex justify-center space-x-4 mb-6">
           <button
             onClick={() => setActiveTab("inventory")}
             className={`px-6 py-2 rounded-full font-medium shadow-md transition-all transform hover:scale-105 ${
@@ -284,7 +324,6 @@ function App() {
           </button>
         </div>
 
-        {/* Smooth Fade Transition for Tabs */}
         <div key={activeTab} className="transition-opacity duration-500 ease-in-out animate-fadeIn">
           {activeTab === "inventory" && (
             <InventoryTab
@@ -298,15 +337,18 @@ function App() {
               submitRowAction={submitRowAction}
               fetchProducts={fetchProducts}
               API_BASE_URL={API_BASE_URL}
-              devAlert={devAlert}
               showAddProduct={showAddProduct}
               setShowAddProduct={setShowAddProduct}
             />
           )}
 
           {activeTab === "calendar" && <CalendarTab />}
+          {activeTab === "profile" && <Profile user={{ name: "Admin User", role }} />}
+          {activeTab === "settings" && (
+          <Settings darkMode={darkMode} setDarkMode={setDarkMode} />
+          )}
 
-          {/* Coming Soon Pages */}
+
           {["dashboard", "reports", "settings"].includes(activeTab) && (
             <div className="text-center py-20 text-gray-600 text-lg">
               {activeTab === "dashboard" && "📊 Dashboard coming soon..."}
@@ -324,7 +366,7 @@ function App() {
           )}
         </div>
 
-        {/* Export Popup */}
+        {/* Export popup (unchanged) */}
         {showExportPopup && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div className="bg-white p-6 rounded-2xl w-96 shadow-2xl transform transition-all scale-95 animate-fadeIn">
@@ -403,7 +445,6 @@ function App() {
       </main>
 
       <Footer />
-      {/* ✅ Toast container globally */}
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
     </div>
   );

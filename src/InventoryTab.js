@@ -1,3 +1,4 @@
+// src/InventoryTab.js
 import React, { memo } from "react";
 import {
   FaPlus,
@@ -5,13 +6,13 @@ import {
   FaMinusCircle,
   FaCheck,
   FaTimes,
-  FaWeightHanging,
   FaSearch,
   FaBoxOpen,
 } from "react-icons/fa";
 import AddProductForm from "./AddProductForm";
 import axios from "axios";
-import { toast } from "react-toastify"; // ✅ added toast import
+import { toast } from "react-toastify";
+import { useAuth } from "./context/AuthContext";
 
 const InventoryTab = memo(function InventoryTab({
   products,
@@ -24,11 +25,10 @@ const InventoryTab = memo(function InventoryTab({
   submitRowAction,
   fetchProducts,
   API_BASE_URL,
-  devAlert,
   showAddProduct,
   setShowAddProduct,
 }) {
-  console.log("📦 InventoryTab rendered");
+  const { role, token } = useAuth();
 
   const filteredProducts = products
     .filter((p) => p.isActive !== false)
@@ -41,35 +41,45 @@ const InventoryTab = memo(function InventoryTab({
   return (
     <div className="relative">
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-4">
-          <h2 className="text-2xl font-semibold">Inventory</h2>
-          <div className="relative">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+          <h2 className="text-2xl font-semibold text-center sm:text-left">
+            Inventory
+          </h2>
+          <div className="relative w-full sm:w-64">
             <FaSearch className="absolute left-3 top-3 text-gray-400" />
             <input
-              key="searchbar"
               type="text"
               placeholder="Search by SKU or Name"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-64 text-sm"
+              className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-sm"
             />
           </div>
         </div>
 
-        <button
-          onClick={() => setShowAddProduct(!showAddProduct)}
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium px-4 py-2 rounded-full shadow-md transition-transform transform hover:scale-105"
-        >
-          {showAddProduct ? "Close" : (<><FaPlus /> Add Product</>)}
-        </button>
+        {role !== "guest" && (
+          <button
+            onClick={() => setShowAddProduct(!showAddProduct)}
+            className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium px-5 sm:px-6 py-2 sm:py-2.5 rounded-full shadow-lg transition-transform transform hover:scale-105 hover:-translate-y-0.5 w-full sm:w-auto"
+          >
+            {showAddProduct ? (
+              "Close"
+            ) : (
+              <>
+                <FaPlus /> Add Product
+              </>
+            )}
+          </button>
+        )}
       </div>
 
-      {/* Add Product Form */}
-      {showAddProduct && <AddProductForm onSubmit={handleAddProduct} />}
+      {showAddProduct && role !== "guest" && (
+        <AddProductForm onSubmit={handleAddProduct} />
+      )}
 
       {/* Product Table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
         {products.length === 0 ? (
           <div className="text-center text-gray-500 py-12">
             <FaBoxOpen className="text-5xl mx-auto mb-3 text-gray-400" />
@@ -85,14 +95,25 @@ const InventoryTab = memo(function InventoryTab({
             </p>
           </div>
         ) : (
-          <table className="min-w-full border border-gray-200 divide-y divide-gray-200">
+          <table className="min-w-full text-sm sm:text-base divide-y divide-gray-200">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-4 py-2 text-left">SKU</th>
-                <th className="px-4 py-2 text-left">Name</th>
-                <th className="px-4 py-2 text-center">Qty</th>
-                <th className="px-4 py-2 text-center">Total Weight (g)</th>
-                <th className="px-4 py-2 text-left">Actions</th>
+                <th className="px-2 sm:px-4 py-2 text-left whitespace-nowrap">
+                  SKU
+                </th>
+                <th className="px-2 sm:px-4 py-2 text-left whitespace-nowrap">
+                  Name
+                </th>
+                <th className="px-2 sm:px-4 py-2 text-center whitespace-nowrap">
+                  Qty
+                </th>
+                <th
+  className="px-14 text-left relative"
+>
+  Actions
+</th>
+
+
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -105,94 +126,88 @@ const InventoryTab = memo(function InventoryTab({
                 return (
                   <tr
                     key={p._id}
-                    className={`${idx % 2 === 0 ? "bg-white" : "bg-gray-50"} transition`}
-                  >
-                    <td className="px-4 py-2">{p.sku}</td>
-                    <td className="px-4 py-2 uppercase">{p.name}</td>
+                    className={`transition sm:text-base text-sm ${
+                        document.documentElement.classList.contains("dark")
+                        ? "bg-gray-800 hover:bg-gray-700"
+                        : idx % 2 === 0
+                        ? "bg-white hover:bg-gray-50"
+                        : "bg-gray-50 hover:bg-gray-100"
+                    }`}
+                    >
+                    <td className="px-2 sm:px-4 py-2 whitespace-nowrap">
+                      {p.sku}
+                    </td>
+                    <td className="px-2 sm:px-4 py-2 uppercase whitespace-nowrap">
+                      {p.name}
+                    </td>
 
-                    {/* ✅ Quantity with Low Stock Alert */}
-                    <td className="px-4 py-2 text-center">
-                      <div className="relative inline-flex items-center justify-center min-w-[80px]">
+                    <td className="px-2 sm:px-4 py-2 text-center whitespace-nowrap">
+                      <div className="relative inline-flex items-center justify-center min-w-[60px] sm:min-w-[80px]">
                         <span className="tabular-nums">{quantity}</span>
-                        <span
-                          className={`absolute right-0 text-lg ${
-                            isLowStock
-                              ? "text-red-500 cursor-pointer low-stock-alert opacity-100"
-                              : "opacity-0 pointer-events-none"
-                          }`}
-                          title={
-                            isLowStock
-                              ? `⚠️ Only ${quantity} left — below minimum stock level of ${lowQuantity}`
-                              : ""
-                          }
-                        >
-                          ⚠️
-                        </span>
+                        {isLowStock && (
+                          <span
+                            className="absolute right-0 text-lg text-red-500 cursor-pointer low-stock-alert"
+                            title={`⚠️ Only ${quantity} left — below minimum stock level of ${lowQuantity}`}
+                          >
+                            ⚠️
+                          </span>
+                        )}
                       </div>
                     </td>
 
-                    {/* ✅ Total Weight */}
-                    <td className="px-4 py-2 text-center">
-                      <div className="inline-flex items-center gap-1 justify-center">
-                        <FaWeightHanging />
-                        <span>{Number(p.totalWeightGr || 0)}</span>
-                        <span className="text-xs text-gray-500">
-                          ({p.unitWeightGr || 0}g/unit)
+                    {/* Actions */}
+                    <td className="px-2 sm:px-4 py-2">
+                      {role === "guest" ? (
+                        <span className="text-gray-400 text-sm italic">
+                          View only
                         </span>
-                      </div>
-                    </td>
-
-                    {/* ✅ Actions */}
-                    <td className="px-4 py-2">
-                      {!isActive ? (
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium px-3 py-1 rounded-full shadow-md transition-transform transform hover:scale-105"
-                            onClick={() =>
-                              setRowAction({ id: p._id, mode: "add", value: "" })
-                            }
-                            title="Add Quantity"
-                          >
-                            <FaPlusCircle /> Add Qty
-                          </button>
-
-                          <button
-                            className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium px-3 py-1 rounded-full shadow-md transition-transform transform hover:scale-105"
-                            onClick={() =>
-                              setRowAction({ id: p._id, mode: "sell", value: "" })
-                            }
-                            title="Sell Quantity"
-                          >
-                            <FaMinusCircle /> Sell Qty
-                          </button>
-
-                          {/* ✅ Modern archive button with toast */}
-                          <button
-                            className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium px-3 py-1 rounded-full shadow-md transition-transform transform hover:scale-105"
-                            onClick={async () => {
-                              try {
-                                await axios.put(
-                                  `${API_BASE_URL}/api/products/soft-delete/${p._id}`
-                                );
-                                toast.info("📦 Product archived successfully!", {
-                                  position: "top-right",
-                                  autoClose: 3000,
-                                });
-                                fetchProducts();
-                              } catch (err) {
-                                console.error(err);
-                                toast.error("❌ Failed to archive product.", {
-                                  position: "top-right",
-                                  autoClose: 3000,
-                                });
+                      ) : !isActive ? (
+                        <div className="flex flex-wrap gap-2 sm:gap-3">
+                          {(role === "admin" || role === "staff") && (
+                            <button
+                              className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-full shadow-md font-medium text-sm sm:text-base transition-transform transform hover:scale-105 hover:-translate-y-0.5"
+                              onClick={() =>
+                                setRowAction({ id: p._id, mode: "add", value: "" })
                               }
-                            }}
-                          >
-                            Delete
-                          </button>
+                            >
+                              <FaPlusCircle className="text-xs sm:text-sm" /> Add
+                            </button>
+                          )}
+
+                          {(role === "admin" || role === "staff") && (
+                            <button
+                              className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-full shadow-md font-medium text-sm sm:text-base transition-transform transform hover:scale-105 hover:-translate-y-0.5"
+                              onClick={() =>
+                                setRowAction({ id: p._id, mode: "sell", value: "" })
+                              }
+                            >
+                              <FaMinusCircle className="text-xs sm:text-sm" /> Sell
+                            </button>
+                          )}
+
+                          {role === "admin" && (
+                            <button
+                              className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-full shadow-md font-medium text-sm sm:text-base transition-transform transform hover:scale-105 hover:-translate-y-0.5"
+                              onClick={async () => {
+                                try {
+                                  await axios.put(
+                                    `${API_BASE_URL}/api/products/soft-delete/${p._id}`,
+                                    {},
+                                    { headers: { Authorization: `Bearer ${token}` } }
+                                  );
+                                  toast.info("📦 Product archived successfully!");
+                                  fetchProducts();
+                                } catch {
+                                  toast.error("❌ Failed to archive product.");
+                                }
+                              }}
+                            >
+                              Delete
+                            </button>
+                          )}
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                           <input
                             type="number"
                             placeholder={
@@ -202,22 +217,24 @@ const InventoryTab = memo(function InventoryTab({
                             onChange={(e) =>
                               setRowAction({ ...rowAction, value: e.target.value })
                             }
-                            className="border rounded px-3 py-1 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="border rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 w-24 sm:w-36 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base shadow-sm"
                             autoFocus
                           />
+
+                          {/* ✅ Modern Save Button */}
                           <button
-                            className="inline-flex items-center gap-1 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                            className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-full font-medium shadow-md transition-transform transform hover:scale-105 hover:-translate-y-0.5 text-sm sm:text-base"
                             onClick={submitRowAction}
-                            title="Confirm"
                           >
-                            <FaCheck /> Save
+                            <FaCheck className="text-xs sm:text-sm" /> Save
                           </button>
+
+                          {/* ✅ Modern Cancel Button */}
                           <button
-                            className="inline-flex items-center gap-1 bg-gray-300 px-3 py-1 rounded hover:bg-gray-400"
+                            className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-gray-300 to-gray-400 hover:from-gray-400 hover:to-gray-500 text-gray-900 px-5 sm:px-6 py-2 sm:py-2.5 rounded-full font-medium shadow-sm transition-transform transform hover:scale-105 hover:-translate-y-0.5 text-sm sm:text-base"
                             onClick={() => setRowAction(null)}
-                            title="Cancel"
                           >
-                            <FaTimes /> Cancel
+                            <FaTimes className="text-xs sm:text-sm" /> Cancel
                           </button>
                         </div>
                       )}
