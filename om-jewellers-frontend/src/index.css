@@ -1,0 +1,560 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ✅ Prevent rubber-band scroll and fix background */
+html,
+body {
+  height: 100%;
+  overflow-x: hidden;      /* Prevent horizontal drag */
+  overscroll-behavior: none; /* Disable scroll bounce on all browsers */
+  background-color: #f9fafb; /* light mode base */
+}
+
+/* ✅ Match background in dark mode */
+html.dark,
+html.dark body {
+  background-color: #0f172a; /* slate-900 dark background */
+  color: #f3f4f6;
+}
+
+/* ✅ Ensure app root always fills screen height */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* 🌤️ Base body */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  @apply bg-gradient-to-b from-white to-gray-100 text-gray-900 transition-colors duration-300;
+}
+
+/* 🌙 Global Dark Mode */
+html.dark body {
+  @apply bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100;
+}
+
+/* Smooth transitions across the app */
+html,
+body,
+div,
+table,
+input,
+select,
+textarea {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* -------------------------- */
+/* 🌤️ Header & Navigation Fix */
+/* -------------------------- */
+header {
+  background-color: #ffffff; /* ✅ Default white header for light mode */
+  color: #111827;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* ✅ Subtle separation */
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+html.dark header {
+  background-color: #111827 !important; /* ✅ Clean dark header */
+  color: #f9fafb !important;
+  border-bottom: 1px solid #1f2937;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.03); /* ✅ Gentle dark glow */
+}
+
+header h1 {
+  color: inherit;
+  transition: color 0.3s ease;
+}
+
+html.dark header h1 {
+  color: #f9fafb !important;
+}
+
+/* Navigation text color tweaks */
+nav button {
+  color: #374151;
+  transition: color 0.3s ease;
+}
+
+nav button:hover {
+  color: #2563eb;
+}
+
+html.dark nav button {
+  color: #d1d5db !important;
+}
+
+html.dark nav button:hover {
+  color: #93c5fd !important;
+}
+
+/* -------------------------- */
+/* 🌙 General Panels & Cards   */
+/* -------------------------- */
+html.dark .bg-white {
+  @apply bg-gray-800 text-gray-100 border-gray-700;
+}
+html.dark .bg-gray-50 {
+  @apply bg-gray-900;
+}
+html.dark .bg-gray-100 {
+  @apply bg-gray-800;
+}
+/* -------------------------- */
+/* 🪟 Card / Table Shadows */
+/* -------------------------- */
+.card,
+.table-wrapper,
+.react-calendar {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  border-radius: 1rem;
+}
+
+html.dark .card,
+html.dark .table-wrapper,
+html.dark .react-calendar {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* -------------------------- */
+/* 🌙 Inputs & Forms           */
+/* -------------------------- */
+input,
+select,
+textarea {
+  @apply bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500;
+}
+html.dark input,
+html.dark select,
+html.dark textarea {
+  @apply bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400;
+}
+html.dark input[type="text"] {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+/* -------------------------- */
+/* 🌙 Tables                   */
+/* -------------------------- */
+html.dark table {
+  @apply bg-gray-800 text-gray-100;
+}
+html.dark th {
+  @apply bg-gray-700 text-gray-300;
+}
+html.dark td {
+  @apply text-gray-200;
+}
+html.dark tr:hover {
+  @apply bg-gray-700;
+}
+
+/* -------------------------- */
+/* 🌙 Buttons                  */
+/* -------------------------- */
+button {
+  transition: all 0.2s ease;
+  @apply transition-transform duration-150 active:scale-95 active:brightness-90;
+}
+html.dark .bg-blue-500 {
+  background-color: #2563eb !important;
+}
+html.dark .bg-red-500 {
+  background-color: #dc2626 !important;
+}
+html.dark .bg-green-500 {
+  background-color: #16a34a !important;
+}
+html.dark .bg-yellow-500 {
+  background-color: #facc15 !important;
+  color: #111827 !important;
+}
+
+/* -------------------------- */
+/* 🌙 Calendar Styling         */
+/* -------------------------- */
+.react-calendar {
+  width: 100%;
+  max-width: 100%;
+  border: none !important;
+  background: #ffffff !important;
+  font-family: 'Poppins', sans-serif;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  padding: 1rem;
+}
+
+.react-calendar {
+  background: #ffffff !important;
+  color: #1f2937 !important; /* ✅ ensures visible text in light mode */
+  font-family: 'Poppins', sans-serif;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  padding: 1rem;
+}
+
+html.dark .react-calendar {
+  background: #1f2937 !important;
+  color: #f3f4f6 !important; /* ✅ ensures visible text in dark mode */
+  border: 1px solid #374151 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+.react-calendar h2 {
+  color: #1f2937 !important; /* light */
+}
+html.dark .react-calendar h2 {
+  color: #f3f4f6 !important; /* dark */
+}
+/* Fix heading above calendar */
+.calendar-heading {
+  color: #1f2937 !important; /* light mode */
+}
+
+html.dark .calendar-heading {
+  color: #f3f4f6 !important; /* dark mode */
+}
+
+
+.react-calendar__navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.react-calendar__navigation button {
+  color: #1e3a8a;
+  font-weight: 600;
+  font-size: 1.1rem;
+  background: transparent;
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  transition: all 0.2s ease-in-out;
+}
+.react-calendar__navigation button:hover {
+  background: rgba(59, 130, 246, 0.15);
+  transform: scale(1.05);
+}
+html.dark .react-calendar__navigation button {
+  color: #a5b4fc !important;
+}
+
+.react-calendar__navigation__label {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #1f2937;
+}
+html.dark .react-calendar__navigation__label {
+  color: #e5e7eb !important;
+}
+
+.react-calendar__month-view__weekdays {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+html.dark .react-calendar__month-view__weekdays {
+  color: #9ca3af !important;
+}
+
+.react-calendar__tile {
+  border-radius: 12px;
+  padding: 0.75rem 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1f2937;
+  transition: all 0.2s ease-in-out;
+}
+html.dark .react-calendar__tile {
+  color: #f3f4f6 !important;
+}
+
+/* Hover and active states */
+.react-calendar__tile:enabled:hover {
+  background: linear-gradient(to right, #3b82f6, #2563eb);
+  color: white;
+  transform: scale(1.05);
+}
+.react-calendar__tile--active {
+  background: linear-gradient(to right, #3b82f6, #2563eb) !important;
+  color: white !important;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Current date highlight */
+.react-calendar__tile--now {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid #3b82f6;
+  font-weight: 600;
+  border-radius: 12px;
+}
+html.dark .react-calendar__tile--now {
+  border: 1px solid #818cf8 !important;
+  background: rgba(99, 102, 241, 0.2) !important;
+}
+
+/* Future dates fix */
+html.dark .react-calendar__tile:disabled {
+  background-color: #111827 !important;
+  color: #4b5563 !important;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+html.dark .react-calendar__tile:disabled:hover {
+  background-color: #1f2937 !important;
+  color: #6b7280 !important;
+  transform: none;
+}
+
+/* -------------------------- */
+/* 🌙 Footer                  */
+/* -------------------------- */
+footer {
+  @apply bg-gray-100 text-gray-600 text-center py-4;
+}
+html.dark footer {
+  @apply bg-gray-900 text-gray-400 border-t border-gray-700;
+}
+
+/* -------------------------- */
+/* 🌙 Animations              */
+/* -------------------------- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease-in-out;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+.low-stock-alert {
+  animation: shake 0.4s ease-in-out infinite;
+}
+
+/* -------------------------- */
+/* 🧩 Profile Dropdown Fix     */
+/* -------------------------- */
+
+/* Light mode (default) */
+.profile-dropdown {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Hover effects for dropdown buttons in light mode */
+.profile-dropdown button:hover {
+  background-color: #f3f4f6 !important; /* light gray */
+}
+
+/* Dark mode overrides */
+html.dark .profile-dropdown {
+  background-color: #1f2937 !important; /* gray-800 */
+  color: #f9fafb !important;
+  border: 1px solid #374151 !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.dark .profile-dropdown button:hover {
+  background-color: #374151 !important; /* gray-700 */
+}
+
+/* Fix for Logout button contrast */
+.profile-dropdown .logout-btn {
+  color: #dc2626 !important; /* bright red */
+  font-weight: 500;
+}
+.profile-dropdown .logout-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  color: #b91c1c !important; /* deeper red for contrast */
+}
+html.dark .profile-dropdown .logout-btn {
+  color: #f87171 !important; /* light red for dark background */
+}
+html.dark .profile-dropdown .logout-btn:hover {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  color: #fca5a5 !important; /* soft red on hover */
+}
+/* -------------------------- */
+/* 🖱 Scrollbar Styling */
+/* -------------------------- */
+
+/* Light mode */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Dark mode */
+html.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+
+/* ----------------------------------- */
+/* ✅ FINAL — ARCHIVED ROW STYLING FIX */
+/* ----------------------------------- */
+
+/* Ensure Tailwind background utilities don’t override */
+tr.archived-row,
+html.dark tr.archived-row {
+  background: none !important;
+}
+
+/* 🌞 Light mode */
+html:not(.dark) tr.archived-row td {
+  background-color: #f8fafc !important; /* gray-50 */
+  color: #374151 !important; /* gray-700 */
+  font-style: italic;
+  opacity: 0.95;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html:not(.dark) tr.archived-row:hover td {
+  background-color: #e5e7eb !important; /* gray-200 */
+  color: #111827 !important; /* gray-900 */
+  opacity: 1;
+}
+
+/* 🌙 Dark mode */
+html.dark tr.archived-row td {
+  background-color: #374151 !important; /* gray-700 */
+  color: #d1d5db !important; /* gray-300 */
+  font-style: italic;
+  opacity: 0.9;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.dark tr.archived-row:hover td {
+  background-color: #4b5563 !important; /* gray-600 */
+  color: #f9fafb !important;
+  opacity: 1;
+}
+
+/* 📦 Archive icon */
+.archived-icon {
+  font-size: 0.9rem;
+  margin-left: 0.3rem;
+  opacity: 0.8;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  color: #9ca3af;
+}
+
+html:not(.dark) .archived-icon {
+  color: #6b7280 !important; /* gray-500 in light mode */
+}
+
+html.dark .archived-icon {
+  color: #a5b4fc !important; /* indigo-300 in dark mode */
+}
+
+.archived-icon:hover {
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+/* Optional: Archived badge next to name */
+.archived-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.4rem;
+  margin-left: 0.4rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+html.dark .archived-badge {
+  background-color: #374151;
+  color: #d1d5db;
+}
+/* ✅ Ensure active rows stay light in light mode */
+html:not(.dark) tr:not(.archived-row) {
+  background-color: #ffffff !important; /* force white for active rows */
+  color: #111827 !important; /* standard text */
+}
+
+html:not(.dark) tr:not(.archived-row):hover {
+  background-color: #f9fafb !important; /* light hover */
+}
+/* -------------------------- */
+/* 🌈 Subtle Animated Gradient Background */
+/* -------------------------- */
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+body {
+  background: linear-gradient(120deg, #f9fafb, #eef2ff, #f9fafb);
+  background-size: 200% 200%;
+  animation: gradientShift 18s ease infinite;
+  touch-action: pan-y; /* Prevent sideways dragging on mobile */
+}
+
+html.dark body {
+  background: linear-gradient(120deg, #0f172a, #1e293b, #0f172a);
+  background-size: 200% 200%;
+  animation: gradientShift 22s ease infinite;
+}
+
+/* -------------------------- */
+/* 🧾 Table Header Enhancement */
+/* -------------------------- */
+
+/* Light mode header */
+table thead th {
+  background-color: #f3f4f6; /* light gray header background */
+  color: #111827;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  border-bottom: 2px solid #e5e7eb;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+/* Dark mode header */
+html.dark table thead th {
+  background-color: #1f2937; /* dark gray */
+  color: #f9fafb;
+  border-bottom: 2px solid #374151;
+}
+
+/* Add subtle shadow under header row for separation */
+table thead {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+html.dark table thead {
+  box-shadow: 0 2px 5px rgba(255, 255, 255, 0.05);
+}
+
