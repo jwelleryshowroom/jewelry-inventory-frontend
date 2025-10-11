@@ -8,7 +8,7 @@ const AuthContext = createContext(null);
 const API_BASE_URL =
     window.location.hostname === "localhost"
         ? "http://localhost:5000"
-        : "https://jewelry-inventory-client-backend.onrender.com";
+        : "https://jewelry-inventory-backend.onrender.com";
 
 export function AuthProvider({ children }) {
     const [token, setToken] = useState(null);
