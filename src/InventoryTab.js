@@ -9,8 +9,6 @@ import {
   FaBoxOpen,
 } from "react-icons/fa";
 import AddProductForm from "./AddProductForm";
-import axios from "axios";
-import { toast } from "react-toastify";
 import { useAuth } from "./context/AuthContext";
 
 const InventoryTab = memo(function InventoryTab({
@@ -27,8 +25,7 @@ const InventoryTab = memo(function InventoryTab({
   showAddProduct,
   setShowAddProduct,
 }) {
-  const { role, token } = useAuth();
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const { role} = useAuth();
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   // ✅ Filter Logic
