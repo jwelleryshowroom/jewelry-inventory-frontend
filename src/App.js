@@ -15,11 +15,14 @@ import Footer from "./components/Footer";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
+import GoldInventoryTab from "./pages/Inventory/GoldInventoryTab";
+import SilverInventoryTab from "./pages/Inventory/SilverInventoryTab";
 import { useAuth } from "./context/AuthContext";
+
 
 const API_BASE_URL =
   window.location.hostname === "localhost"
-    ? "http://localhost:5000"
+    ? "http://localhost:5050"
     : "https://jewelry-inventory-backend.onrender.com";
 
 function App() {
@@ -248,6 +251,7 @@ function App() {
                     <tr>
                       <th className="px-4 py-2 text-left">SKU</th>
                       <th className="px-4 py-2 text-left">Name</th>
+                      <th className="px-4 py-2 text-center">Category</th> {/* ✅ added */}
                       <th className="px-4 py-2 text-center">Opening</th>
                       <th className="px-4 py-2 text-center">Added</th>
                       <th className="px-4 py-2 text-center">Sold</th>
@@ -259,8 +263,8 @@ function App() {
                       <tr
                         key={t._id}
                         className={`${t.isActive === false
-                            ? "archived-row"
-                            : "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+                          ? "archived-row"
+                          : "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
                           }`}
                       >
                         <td className="px-4 py-2">{t.sku}</td>
@@ -294,6 +298,11 @@ function App() {
                             </span>
 
                           )}
+                        </td>
+
+                        {/* ✅ Category Column */}
+                        <td className="px-4 py-2 text-center">
+                          {t.category || "General"}
                         </td>
                         <td className="px-4 py-2 text-center">{t.openingQty}</td>
                         <td className="px-4 py-2 text-center">{t.addedQty}</td>
@@ -395,7 +404,7 @@ function App() {
             <div className="text-center py-20 text-gray-600 text-lg">
               {activeTab === "dashboard" && "📊 Dashboard coming soon..."}
               {activeTab === "reports" && "📈 Reports feature coming soon..."}
-              {activeTab === "settings" && "⚙️ Settings panel coming soon..."}
+              {/* {activeTab === "settings" && "⚙️ Settings panel coming soon..."} */}
               <div className="mt-6">
                 <button
                   onClick={() => setActiveTab("inventory")}
@@ -600,5 +609,7 @@ function App() {
     </div>
   );
 }
+
+
 
 export default App;
