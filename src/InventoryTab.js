@@ -1,3 +1,4 @@
+// src/InventoryTab.js
 import React, { memo, useState } from "react";
 import {
   FaPlus,
@@ -9,6 +10,8 @@ import {
   FaBoxOpen,
 } from "react-icons/fa";
 import AddProductForm from "./AddProductForm";
+import axios from "axios";
+import { toast } from "react-toastify";
 import { useAuth } from "./context/AuthContext";
 
 const InventoryTab = memo(function InventoryTab({
@@ -25,7 +28,8 @@ const InventoryTab = memo(function InventoryTab({
   showAddProduct,
   setShowAddProduct,
 }) {
-  const { role} = useAuth();
+  const { role, token } = useAuth();
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   // ✅ Filter Logic
@@ -40,9 +44,8 @@ const InventoryTab = memo(function InventoryTab({
 
   return (
     <div className="relative">
-      {/* 🌟 Category Bar - Positioned to flow directly from the main Inventory tab 🌟 */}
+      {/* 🌟 Category Bar */}
       <div className="flex flex-col items-center">
-        {/* Category Buttons Container (The expanded section) */}
         <div
           className="
             flex justify-center gap-4
@@ -50,14 +53,13 @@ const InventoryTab = memo(function InventoryTab({
             px-6 pb-3 rounded-3xl shadow-xl 
             relative z-10 w-auto
           "
-          style={{ 
-            // Ensures the smooth, wide curve starts near the top of this component's render area
-            borderTopLeftRadius: '100px', 
-            borderTopRightRadius: '100px',
-            minWidth: "300px", 
-            paddingLeft: '30px', 
-            paddingRight: '30px',
-            paddingTop: '20px', 
+          style={{
+            borderTopLeftRadius: "100px",
+            borderTopRightRadius: "100px",
+            minWidth: "300px",
+            paddingLeft: "30px",
+            paddingRight: "30px",
+            paddingTop: "20px",
           }}
         >
           {["All", "Gold", "Silver"].map((cat) => (
@@ -79,11 +81,10 @@ const InventoryTab = memo(function InventoryTab({
           ))}
         </div>
       </div>
-      
+
       {/* Header: Search + Add Product */}
       <div className="flex justify-between items-center gap-4 mb-4 mt-4">
-        {/* Search Bar - Adjusted width to max-w-sm */}
-        <div className="flex-grow max-w-sm"> 
+        <div className="flex-grow max-w-sm">
           <div className="relative w-full">
             <FaSearch className="absolute left-3 top-3 text-gray-400" />
             <input
@@ -91,13 +92,11 @@ const InventoryTab = memo(function InventoryTab({
               placeholder="Search by SKU or Name"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              // RESTORED: Search Input reverted to original, working Light Mode state
               className="pl-10 pr-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-sm"
             />
           </div>
         </div>
 
-        {/* Add Product / Close Button */}
         {role !== "guest" && (
           <button
             onClick={() => setShowAddProduct(!showAddProduct)}
@@ -107,11 +106,9 @@ const InventoryTab = memo(function InventoryTab({
               transition-transform transform hover:scale-105 
               w-auto
               ${
-                // Red 'Close' button when the form is visible
                 showAddProduct
                   ? "bg-red-500 hover:bg-red-600 text-white"
-                  : // Blue 'Add Product' button when the form is hidden
-                    "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-xl"
+                  : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-xl"
               }`}
           >
             {showAddProduct ? (
@@ -127,53 +124,55 @@ const InventoryTab = memo(function InventoryTab({
         )}
       </div>
 
-      {/* Add Product Form - Styling refined */}
-{showAddProduct && role !== "guest" && (
-  <div className="mt-4">
-    <div
-  className={`mb-4 rounded-lg shadow-md transition-all border p-4 ${
-    selectedCategory === "Gold"
-      ? "bg-yellow-50 border-yellow-300 text-inherit dark:bg-yellow-900/60 dark:border-yellow-700"
-      : selectedCategory === "Silver"
-      ? "bg-white border-gray-300 text-inherit dark:bg-gray-800 dark:border-gray-700"
-      : "bg-blue-50 border-blue-200 text-inherit dark:bg-blue-900/50 dark:border-blue-700"
-  }`}
+      {/* Add Product Form */}
+      {showAddProduct && role !== "guest" && (
+        <div className="mt-4">
+          <div
+            className={`mb-4 rounded-lg shadow-md transition-all border p-4 ${
+              selectedCategory === "Gold"
+                ? "bg-yellow-50 border-yellow-300 text-inherit dark:bg-yellow-900/60 dark:border-yellow-700"
+                : selectedCategory === "Silver"
+                ? "bg-white border-gray-300 text-inherit dark:bg-gray-800 dark:border-gray-700"
+                : "bg-blue-50 border-blue-200 text-inherit dark:bg-blue-900/50 dark:border-blue-700"
+            }`}
+            style={{
+              backgroundColor:
+                document.documentElement.classList.contains("dark")
+                  ? undefined
+                  : selectedCategory === "Gold"
+                  ? "#fffbe6"
+                  : selectedCategory === "Silver"
+                  ? "#f0f0f0"
+                  : "#f0f8ff",
+            }}
+          >
+            <h3
+              className={`text-lg font-semibold mb-3 ${
+                selectedCategory === "Gold"
+                  ? "!text-yellow-700 dark:text-yellow-300"
+                  : selectedCategory === "Silver"
+                  ? "!text-gray-700 dark:text-gray-300"
+                  : "!text-blue-700 dark:text-blue-300"
+              }`}
+            >
+              {selectedCategory === "Gold"
+                ? "🪙 Add Gold Product"
+                : selectedCategory === "Silver"
+                ? "⚪ Add Silver Product"
+                : "➕ Add Product"}
+            </h3>
+                <AddProductForm
+                onSubmit={(data) =>
+                    handleAddProduct({
+                    ...data,
+                    category: selectedCategory === "All" ? undefined : selectedCategory,
+                    })
+                }
+                />
 
-      style={{
-        backgroundColor:
-          document.documentElement.classList.contains("dark")
-            ? undefined
-            : selectedCategory === "Gold"
-            ? "#fffbe6"
-            : selectedCategory === "Silver"
-            ? "#f0f0f0"
-            : "#f0f8ff",
-      }}
-    >
-      <h3
-        className={`text-lg font-semibold mb-3 ${
-          selectedCategory === "Gold"
-            ? "!text-yellow-700 dark:text-yellow-300"
-            : selectedCategory === "Silver"
-            ? "!text-gray-500 dark:text-gray-300"
-            : "!text-blue-700 dark:text-blue-300"
-        }`}
-      >
-        {selectedCategory === "Gold"
-          ? "🪙 Add Gold Product"
-          : selectedCategory === "Silver"
-          ? "⚪ Add Silver Product"
-          : "➕ Add Product"}
-      </h3>
-      <AddProductForm
-        onSubmit={(data) =>
-          handleAddProduct({ ...data, category: selectedCategory })
-        }
-      />
-    </div>
-  </div>
-)}
-
+          </div>
+        </div>
+      )}
 
       {/* Product Table */}
       <div className="relative rounded-lg border border-gray-200 shadow-sm overflow-hidden dark:border-gray-700">
@@ -201,12 +200,7 @@ const InventoryTab = memo(function InventoryTab({
             "
           >
             <table className="min-w-full text-sm sm:text-base border-collapse table-fixed divide-y divide-gray-200 dark:divide-gray-700 relative">
-              <thead
-                className="
-                  sticky top-0 z-[30] bg-white/95 dark:bg-gray-900/95 
-                  backdrop-blur-sm shadow-sm border-b border-gray-200 dark:border-gray-700 dark:text-gray-200
-                "
-              >
+              <thead className="sticky top-0 z-[30] bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-sm border-b border-gray-200 dark:border-gray-700 dark:text-gray-200">
                 <tr>
                   <th className="w-[15%] px-4 py-3 text-left font-semibold whitespace-nowrap">
                     SKU
@@ -326,7 +320,6 @@ const InventoryTab = memo(function InventoryTab({
                                   value: e.target.value,
                                 })
                               }
-                              // FIXED: Explicitly setting light mode colors (bg-white, text-gray-800)
                               className="border rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 w-24 sm:w-36 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base shadow-sm bg-white text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                               autoFocus
                             />
@@ -353,6 +346,51 @@ const InventoryTab = memo(function InventoryTab({
           </div>
         )}
       </div>
+
+      {/* 🧨 Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 w-[90%] sm:w-[400px] text-center animate-fadeIn">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-3 flex items-center justify-center gap-2">
+              ⚠️ Confirm Delete
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-6 text-sm sm:text-base">
+              Are you sure you want to delete{" "}
+              <span className="font-semibold">{deleteConfirm.name}</span>?<br />
+              This action will archive the product from your inventory.
+            </p>
+
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-gray-300 to-gray-400 hover:from-gray-400 hover:to-gray-500 text-gray-900 px-5 sm:px-6 py-2 sm:py-2.5 rounded-full font-medium shadow-md transition-transform transform hover:scale-105 text-sm sm:text-base"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await axios.put(
+                      `${API_BASE_URL}/api/products/soft-delete/${deleteConfirm._id}`,
+                      {},
+                      { headers: { Authorization: `Bearer ${token}` } }
+                    );
+                    toast.success("🗑️ Product archived successfully!");
+                    fetchProducts();
+                  } catch {
+                    toast.error("❌ Failed to archive product.");
+                  } finally {
+                    setDeleteConfirm(null);
+                  }
+                }}
+                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-full font-medium shadow-md transition-transform transform hover:scale-105 text-sm sm:text-base"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 });
