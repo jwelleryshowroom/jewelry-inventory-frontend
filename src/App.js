@@ -15,8 +15,6 @@ import Footer from "./components/Footer";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
-import GoldInventoryTab from "./pages/Inventory/GoldInventoryTab";
-import SilverInventoryTab from "./pages/Inventory/SilverInventoryTab";
 import { useAuth } from "./context/AuthContext";
 
 
