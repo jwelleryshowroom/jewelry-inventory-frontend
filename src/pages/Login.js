@@ -31,16 +31,18 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4 sm:px-6 md:px-8 relative transition-colors duration-300">
-      
-      {/* 💎 Header */}
-      <div className="absolute top-6 left-6 flex items-center gap-2">
-        <FaGem className="text-yellow-500 text-3xl" />
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Jewellery Inventory</h1>
-      </div>
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 px-4 sm:px-6 md:px-8 transition-colors duration-300 relative overflow-hidden">
+
+      {/* 💎 Fixed Header — Frosted Glass Style */}
+      <header className="w-full fixed top-0 left-0 backdrop-blur-md bg-white/30 dark:bg-gray-900/30 px-6 py-3 flex items-center gap-2 z-20 shadow-sm">
+        <FaGem className="text-yellow-500 text-2xl sm:text-3xl" />
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">
+          Jewellery Inventory
+        </h1>
+      </header>
 
       {/* 🪪 Login Card */}
-      <div className="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 w-full max-w-md mt-12 sm:mt-16 transform transition-all duration-300 border border-gray-100 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 w-full max-w-md mt-16 sm:mt-20 transform transition-all duration-300 border border-gray-100 dark:border-gray-700">
         <h2 className="text-3xl font-bold text-center text-blue-600 dark:text-blue-400 mb-2">
           Welcome Back 👋
         </h2>

@@ -652,3 +652,131 @@ table thead {
 html.dark table thead {
   box-shadow: 0 2px 5px rgba(255, 255, 255, 0.05);
 }
+
+/* ✅ FINAL FIX: prevent horizontal scroll on mobile ONLY */
+@media (max-width: 768px) {
+  html, body {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .inventory-container,
+  .relative,
+  .table-wrapper,
+  .bg-white,
+  .bg-gray-800 {
+    box-sizing: border-box;
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: clip !important;
+  }
+
+  /* ✅ Hide mobile scrollbar base line */
+  ::-webkit-scrollbar {
+    height: 0px;
+  }
+}
+/* ✅ Responsive positioning fix for profile dropdown */
+.profile-dropdown {
+  position: fixed !important;
+  right: 1rem !important;
+  top: 3.5rem !important;
+  z-index: 9999 !important;
+  overflow: visible !important;
+  transform-origin: top right;
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+/* 🧭 Adjust position for very small screens */
+@media (max-width: 480px) {
+  .profile-dropdown {
+    right: 0.5rem !important;
+    top: 3.2rem !important;
+    width: 85vw !important;
+  }
+}
+
+/* ✅ Profile Dropdown - Correct Aligned Arrow Below AU */
+.profile-dropdown {
+  position: fixed !important;
+  overflow: visible !important;
+  top: 4rem !important;
+  right: 1.25rem !important;
+  z-index: 9999 !important;
+  border-radius: 0.75rem;
+  transform-origin: top right;
+  animation: dropdownFade 0.25s ease-out;
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 🌙 Dark Mode */
+html.dark .profile-dropdown {
+  background-color: #1f2937 !important;
+  color: #f9fafb !important;
+  border: 1px solid #374151 !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 🎯 Arrow directly below AU */
+.profile-dropdown::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  right: 6.8rem; /* 🔧 Adjust this until arrow sits perfectly under AU */
+  width: 12px;
+  height: 12px;
+  background-color: inherit;
+  transform: rotate(45deg);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: -1px -1px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* 🌙 Dark Mode Arrow */
+html.dark .profile-dropdown::before {
+  background-color: #1f2937;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: -1px -1px 3px rgba(255, 255, 255, 0.05);
+}
+
+/* 📱 Mobile-only narrower dropdown */
+@media (max-width: 480px) {
+  .profile-dropdown {
+    width: 10.5rem !important;  /* 🔧 Narrower only on mobile */
+    right: 0.8rem !important;   /* keeps it aligned under AU */
+    top: 3.8rem !important;
+  }
+
+  .profile-dropdown::before {
+    right: 1.4rem; /* adjusts arrow to remain perfectly centered */
+  }
+}
+
+/* ✅ MOBILE (≤480px): keep Add Product centered & small */
+@media (max-width: 480px) {
+  .add-product-fix {
+    margin-right: 0 !important;
+    transform-origin: center center !important;
+    transform: none !important;
+    padding: 0.45rem 0.9rem !important; /* balanced mobile size */
+    font-size: 0.9rem !important;
+  }
+}
+
+/* 💻 DESKTOP (≥481px): move left slightly so hover doesn’t clip */
+@media (min-width: 481px) {
+  .add-product-fix {
+    margin-right: 0.6rem !important;
+    transform-origin: center right !important;
+  }
+
+  .add-product-fix:hover {
+    transform: scale(1.06) translateX(-2px) !important;
+  }
+}
+
+

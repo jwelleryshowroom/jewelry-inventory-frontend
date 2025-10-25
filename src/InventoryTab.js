@@ -43,16 +43,16 @@ const InventoryTab = memo(function InventoryTab({
         );
 
     return (
-        <div className="relative">
+        <div className="relative w-full overflow-x-clip">
             {/* 🌟 Category Bar */}
             <div className="flex flex-col items-center">
                 <div
                     className="
-            flex justify-center gap-4
-            bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 
-            px-6 pb-3 rounded-3xl shadow-xl 
-            relative z-10 w-auto
-          "
+                        flex justify-center gap-4
+                        bg-gradient-to-b from-blue-100 via-blue-200 to-blue-300 
+                        px-6 pb-3 rounded-3xl shadow-xl 
+                        relative z-10 w-auto
+                    "
                     style={{
                         borderTopLeftRadius: "100px",
                         borderTopRightRadius: "100px",
@@ -70,7 +70,7 @@ const InventoryTab = memo(function InventoryTab({
                                 setShowAddProduct(false);
                             }}
                             className={`px-5 py-2 rounded-full font-medium transition-all transform hover:scale-105 flex items-center gap-2 shadow-sm
-                ${selectedCategory === cat
+                                ${selectedCategory === cat
                                     ? "bg-white text-blue-700 shadow-md"
                                     : "bg-blue-100/70 text-blue-800 hover:bg-blue-200/90"
                                 }`}
@@ -97,28 +97,32 @@ const InventoryTab = memo(function InventoryTab({
                 </div>
 
                 {role !== "guest" && (
+
+                    
+
                     <button
-                        onClick={() => setShowAddProduct(!showAddProduct)}
-                        className={`
-              inline-flex items-center justify-center gap-2 font-medium 
-              px-5 sm:px-6 py-2 sm:py-2.5 rounded-full shadow-lg 
-              transition-transform transform hover:scale-105 
-              w-auto
-              ${showAddProduct
-                                ? "bg-red-500 hover:bg-red-600 text-white"
-                                : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-xl"
-                            }`}
-                    >
-                        {showAddProduct ? (
-                            <>
-                                <FaTimes /> Close
-                            </>
-                        ) : (
-                            <>
-                                <FaPlus /> Add Product
-                            </>
-                        )}
-                    </button>
+  onClick={() => setShowAddProduct(!showAddProduct)}
+  className={`
+    inline-flex items-center justify-center gap-2 font-medium 
+    px-5 sm:px-6 py-2 sm:py-2.5 rounded-full shadow-lg 
+    transition-transform transform hover:scale-105 
+    w-auto
+    ${showAddProduct
+      ? "bg-red-500 hover:bg-red-600 text-white"
+      : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-xl"
+    } add-product-fix`}
+>
+  {showAddProduct ? (
+    <>
+      <FaTimes /> Close
+    </>
+  ) : (
+    <>
+      <FaPlus /> Add Product
+    </>
+  )}
+</button>
+
                 )}
             </div>
 
@@ -127,10 +131,10 @@ const InventoryTab = memo(function InventoryTab({
                 <div className="mt-4">
                     <div
                         className={`mb-4 rounded-lg shadow-md transition-all border p-4 ${selectedCategory === "Gold"
-                                ? "bg-yellow-50 border-yellow-300 text-inherit dark:bg-yellow-500 dark:border-yellow-700"
-                                : selectedCategory === "Silver"
-                                    ? "bg-white border-gray-300 text-inherit dark:bg-gray-800 dark:border-gray-700"
-                                    : "bg-blue-50 border-blue-200 text-inherit dark:bg-blue-400 dark:border-blue-700"
+                            ? "bg-yellow-50 border-yellow-300 text-inherit dark:bg-yellow-500 dark:border-yellow-700"
+                            : selectedCategory === "Silver"
+                                ? "bg-white border-gray-300 text-inherit dark:bg-gray-800 dark:border-gray-700"
+                                : "bg-blue-50 border-blue-200 text-inherit dark:bg-blue-400 dark:border-blue-700"
                             }`}
                         style={{
                             backgroundColor:
@@ -145,10 +149,10 @@ const InventoryTab = memo(function InventoryTab({
                     >
                         <h3
                             className={`text-lg font-semibold mb-3 ${selectedCategory === "Gold"
-                                    ? "!text-yellow-700 dark:text-yellow-300"
-                                    : selectedCategory === "Silver"
-                                        ? "!text-gray-500 dark:text-gray-300"
-                                        : "!text-blue-700 dark:text-blue-300"
+                                ? "!text-yellow-700 dark:text-yellow-300"
+                                : selectedCategory === "Silver"
+                                    ? "!text-gray-500 dark:text-gray-300"
+                                    : "!text-blue-700 dark:text-blue-300"
                                 }`}
                         >
                             {selectedCategory === "Gold"
@@ -165,200 +169,193 @@ const InventoryTab = memo(function InventoryTab({
                                 })
                             }
                         />
-
                     </div>
                 </div>
             )}
 
-            {/* Product Table */}
-            <div className="relative rounded-lg border border-gray-200 shadow-sm overflow-hidden dark:border-gray-700">
-                {products.length === 0 ? (
-                    <div className="text-center text-gray-500 py-12">
-                        <FaBoxOpen className="text-5xl mx-auto mb-3 text-gray-400" />
-                        <p className="text-lg font-semibold">
-                            No products listed in inventory
-                        </p>
-                    </div>
-                ) : filteredProducts.length === 0 ? (
-                    <div className="text-center text-gray-500 py-12">
-                        <FaSearch className="text-5xl mx-auto mb-3 text-gray-400" />
-                        <p className="text-lg font-semibold">
-                            No products found for your search
-                        </p>
-                    </div>
-                ) : (
-                    <div
-                        className="
-              max-h-[400px] overflow-y-auto relative
-              scrollbar-thin scrollbar-thumb-gray-100 
-              dark:scrollbar-thumb-gray-700 
-              scrollbar-track-transparent
-            "
-                    >
-                        <table className="min-w-full text-sm sm:text-base border-collapse table-fixed divide-y divide-gray-200 dark:divide-gray-700 relative">
-                            <thead className="sticky top-0 z-[30] bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-sm border-b border-gray-200 dark:border-gray-700 dark:text-gray-200">
-                                <tr>
-                                    <th className="w-[15%] px-4 py-3 text-left font-semibold whitespace-nowrap">
-                                        SKU
-                                    </th>
-                                    <th className="w-[25%] px-4 py-3 text-left font-semibold whitespace-nowrap">
-                                        Name
-                                    </th>
-                                    <th className="w-[10%] px-4 py-3 text-center font-semibold whitespace-nowrap">
-                                        Qty
-                                    </th>
-                                    <th className="w-[50%] px-14 py-3 text-left font-semibold whitespace-nowrap">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
+            {/* ✅ Product Table (responsive fix added below) */}
+            <div className="relative rounded-lg border border-gray-200 shadow-sm overflow-hidden dark:border-gray-700 w-full">
+                <div className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
+                    {products.length === 0 ? (
+                        <div className="text-center text-gray-500 py-12">
+                            <FaBoxOpen className="text-5xl mx-auto mb-3 text-gray-400" />
+                            <p className="text-lg font-semibold">
+                                No products listed in inventory
+                            </p>
+                        </div>
+                    ) : filteredProducts.length === 0 ? (
+                        <div className="text-center text-gray-500 py-12">
+                            <FaSearch className="text-5xl mx-auto mb-3 text-gray-400" />
+                            <p className="text-lg font-semibold">
+                                No products found for your search
+                            </p>
+                        </div>
+                    ) : (
+                        <div
+                            className="
+                                max-h-[400px] overflow-y-auto relative
+                                scrollbar-thin scrollbar-thumb-gray-100 
+                                dark:scrollbar-thumb-gray-700 
+                                scrollbar-track-transparent
+                            "
+                        >
+                            <table className="min-w-full text-sm sm:text-base border-collapse table-fixed divide-y divide-gray-200 dark:divide-gray-700 relative">
+                                <thead className="sticky top-0 z-[30] bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-sm border-b border-gray-200 dark:border-gray-700 dark:text-gray-200">
+                                    <tr>
+                                        <th className="min-w-[80px] px-4 py-3 text-left font-semibold whitespace-nowrap">
+                                            SKU
+                                        </th>
+                                        <th className="min-w-[120px] px-4 py-3 text-left font-semibold whitespace-nowrap">
+                                            Name
+                                        </th>
+                                        <th className="min-w-[60px] px-4 py-3 text-center font-semibold whitespace-nowrap">
+                                            Qty
+                                        </th>
+                                        <th className="min-w-[200px] px-4 py-3 text-left font-semibold whitespace-nowrap">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
 
-                            <tbody className="divide-y divide-gray-200 dark:divide-gray-700 relative z-[10] bg-white dark:bg-gray-800">
-                                {filteredProducts.map((p, idx) => {
-                                    const quantity = Number(p.quantity) || 0;
-                                    const lowQuantity = Number(p.lowQuantity) || 0;
-                                    const isLowStock =
-                                        lowQuantity > 0 && quantity <= lowQuantity;
-                                    const isActive = rowAction && rowAction.id === p._id;
+                                <tbody className="divide-y divide-gray-200 dark:divide-gray-700 relative z-[10] bg-white dark:bg-gray-800">
+                                    {/* ⚙️ Original product rows kept unchanged */}
+                                    {filteredProducts.map((p, idx) => {
+                                        // ✅ No logic touched
+                                        const quantity = Number(p.quantity) || 0;
+                                        const lowQuantity = Number(p.lowQuantity) || 0;
+                                        const isLowStock =
+                                            lowQuantity > 0 && quantity <= lowQuantity;
+                                        const isActive = rowAction && rowAction.id === p._id;
 
-                                    return (
-                                        <tr
-                                            key={p._id}
-                                            className={`transition sm:text-base text-sm ${document.documentElement.classList.contains("dark")
+                                        return (
+                                            // ✅ All your existing row logic unchanged
+                                            <tr
+                                                key={p._id}
+                                                className={`transition sm:text-base text-sm ${document.documentElement.classList.contains("dark")
                                                     ? "bg-gray-800 hover:bg-gray-700"
                                                     : idx % 2 === 0
                                                         ? "bg-white hover:bg-gray-50"
                                                         : "bg-gray-50 hover:bg-gray-100"
-                                                }`}
-                                        >
-                                            <td className="w-[15%] px-4 py-2 whitespace-nowrap">
-                                                {p.sku}
-                                            </td>
-                                            <td className="w-[25%] px-4 py-2 uppercase whitespace-nowrap">
-                                                {p.name}
-                                            </td>
-                                            <td className="w-[10%] px-4 py-2 text-center whitespace-nowrap">
-                                                <div className="relative inline-flex items-center justify-center min-w-[60px] sm:min-w-[80px]">
-                                                    <span className="tabular-nums">{quantity}</span>
-                                                    {isLowStock && (
-                                                        <span className="relative group cursor-pointer">
-                                                            {/* ⚠️ Warning Icon */}
-                                                            <span className="text-yellow-500 text-lg ml-1">⚠️</span>
-
-                                                            {/* Tooltip (appears to the right side) */}
-                                                            <div
-                                                                className="absolute left-full ml-3 top-1/2 -translate-y-1/2 
-        hidden group-hover:flex group-active:flex 
-        bg-yellow-400/95 text-black text-xs font-semibold 
-        px-3 py-1.5 rounded-lg shadow-lg opacity-0 
-        group-hover:opacity-100 group-active:opacity-100 
-        transition-all duration-200 ease-out pointer-events-none 
-        ring-1 ring-yellow-300/40 backdrop-blur-sm whitespace-nowrap z-[999]"
-                                                            >
-                                                                Only {quantity} left in inventory (Min: {lowQuantity})
-                                                                {/* Small arrow pointing left */}
+                                                    }`}
+                                            >
+                                                {/* ✅ Your original cell structure untouched */}
+                                                <td className="px-4 py-2 whitespace-nowrap">{p.sku}</td>
+                                                <td className="px-4 py-2 uppercase whitespace-nowrap">{p.name}</td>
+                                                <td className="px-4 py-2 text-center whitespace-nowrap">
+                                                    <div className="relative inline-flex items-center justify-center min-w-[60px] sm:min-w-[80px]">
+                                                        <span className="tabular-nums">{quantity}</span>
+                                                        {isLowStock && (
+                                                            <span className="relative group cursor-pointer">
+                                                                <span className="text-yellow-500 text-lg ml-1">⚠️</span>
                                                                 <div
-                                                                    className="absolute right-full top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-yellow-400 rotate-45"
-                                                                ></div>
-                                                            </div>
+                                                                    className="absolute left-full ml-3 top-1/2 -translate-y-1/2 
+                                                                        hidden group-hover:flex group-active:flex 
+                                                                        bg-yellow-400/95 text-black text-xs font-semibold 
+                                                                        px-3 py-1.5 rounded-lg shadow-lg opacity-0 
+                                                                        group-hover:opacity-100 group-active:opacity-100 
+                                                                        transition-all duration-200 ease-out pointer-events-none 
+                                                                        ring-1 ring-yellow-300/40 backdrop-blur-sm whitespace-nowrap z-[999]"
+                                                                >
+                                                                    Only {quantity} left in inventory (Min: {lowQuantity})
+                                                                    <div className="absolute right-full top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-yellow-400 rotate-45"></div>
+                                                                </div>
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </td>
+
+                                                {/* Actions column untouched */}
+                                                <td className="px-4 py-2 whitespace-nowrap">
+                                                    {/* ... existing button logic retained ... */}
+                                                    {role === "guest" ? (
+                                                        <span className="text-gray-400 text-sm italic">
+                                                            View only
                                                         </span>
+                                                    ) : !isActive ? (
+                                                        <div className="flex flex-wrap gap-2 sm:gap-3">
+                                                            {/* ✅ Buttons preserved */}
+                                                            {(role === "admin" || role === "staff") && (
+                                                                <button
+                                                                    className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-full shadow-md font-medium text-sm sm:text-base transition-transform transform hover:scale-105 hover:-translate-y-0.5"
+                                                                    onClick={() =>
+                                                                        setRowAction({
+                                                                            id: p._id,
+                                                                            mode: "add",
+                                                                            value: "",
+                                                                        })
+                                                                    }
+                                                                >
+                                                                    <FaPlusCircle className="text-xs sm:text-sm" /> Add
+                                                                </button>
+                                                            )}
+                                                            {(role === "admin" || role === "staff") && (
+                                                                <button
+                                                                    className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-full shadow-md font-medium text-sm sm:text-base transition-transform transform hover:scale-105 hover:-translate-y-0.5"
+                                                                    onClick={() =>
+                                                                        setRowAction({
+                                                                            id: p._id,
+                                                                            mode: "sell",
+                                                                            value: "",
+                                                                        })
+                                                                    }
+                                                                >
+                                                                    <FaMinusCircle className="text-xs sm:text-sm" /> Sell
+                                                                </button>
+                                                            )}
+                                                            {role === "admin" && (
+                                                                <button
+                                                                    className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-full shadow-md font-medium text-sm sm:text-base transition-transform transform hover:scale-105 hover:-translate-y-0.5"
+                                                                    onClick={() => setDeleteConfirm(p)}
+                                                                >
+                                                                    Delete
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                                                            {/* input + Save + Cancel unchanged */}
+                                                            <input
+                                                                type="number"
+                                                                placeholder={rowAction.mode === "add" ? "Add Qty" : "Sell Qty"}
+                                                                value={rowAction.value}
+                                                                onChange={(e) =>
+                                                                    setRowAction({
+                                                                        ...rowAction,
+                                                                        value: e.target.value,
+                                                                    })
+                                                                }
+                                                                className={`border rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 w-24 sm:w-36 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base shadow-sm
+                                                                    ${document.documentElement.classList.contains("dark")
+                                                                        ? "bg-gray-800 border-gray-700 text-white"
+                                                                        : "bg-white border-gray-300 text-gray-800"} 
+                                                                `}
+                                                            />
+                                                            <button
+                                                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-full font-medium shadow-md transition-transform transform hover:scale-105 hover:-translate-y-0.5 text-sm sm:text-base"
+                                                                onClick={submitRowAction}
+                                                            >
+                                                                <FaCheck className="text-xs sm:text-sm" /> Save
+                                                            </button>
+                                                            <button
+                                                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-gray-300 to-gray-400 hover:from-gray-400 hover:to-gray-500 text-gray-900 px-5 sm:px-6 py-2 sm:py-2.5 rounded-full font-medium shadow-sm transition-transform transform hover:scale-105 hover:-translate-y-0.5 text-sm sm:text-base"
+                                                                onClick={() => setRowAction(null)}
+                                                            >
+                                                                <FaTimes className="text-xs sm:text-sm" /> Cancel
+                                                            </button>
+                                                        </div>
                                                     )}
-                                                </div>
-                                            </td>
-
-                                            <td className="w-[50%] px-4 py-2 whitespace-nowrap">
-                                                {role === "guest" ? (
-                                                    <span className="text-gray-400 text-sm italic">
-                                                        View only
-                                                    </span>
-                                                ) : !isActive ? (
-                                                    <div className="flex flex-wrap gap-2 sm:gap-3">
-                                                        {(role === "admin" || role === "staff") && (
-                                                            <button
-                                                                className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-full shadow-md font-medium text-sm sm:text-base transition-transform transform hover:scale-105 hover:-translate-y-0.5"
-                                                                onClick={() =>
-                                                                    setRowAction({
-                                                                        id: p._id,
-                                                                        mode: "add",
-                                                                        value: "",
-                                                                    })
-                                                                }
-                                                            >
-                                                                <FaPlusCircle className="text-xs sm:text-sm" />{" "}
-                                                                Add
-                                                            </button>
-                                                        )}
-
-                                                        {(role === "admin" || role === "staff") && (
-                                                            <button
-                                                                className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-full shadow-md font-medium text-sm sm:text-base transition-transform transform hover:scale-105 hover:-translate-y-0.5"
-                                                                onClick={() =>
-                                                                    setRowAction({
-                                                                        id: p._id,
-                                                                        mode: "sell",
-                                                                        value: "",
-                                                                    })
-                                                                }
-                                                            >
-                                                                <FaMinusCircle className="text-xs sm:text-sm" />{" "}
-                                                                Sell
-                                                            </button>
-                                                        )}
-
-                                                        {role === "admin" && (
-                                                            <button
-                                                                className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-full shadow-md font-medium text-sm sm:text-base transition-transform transform hover:scale-105 hover:-translate-y-0.5"
-                                                                onClick={() => setDeleteConfirm(p)}
-                                                            >
-                                                                Delete
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                                                        <input
-                                                            type="number"
-                                                            placeholder={rowAction.mode === "add" ? "Add Qty" : "Sell Qty"}
-                                                            value={rowAction.value}
-                                                            onChange={(e) =>
-                                                                setRowAction({
-                                                                    ...rowAction,
-                                                                    value: e.target.value,
-                                                                })
-                                                            }
-                                                            className={`border rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 w-24 sm:w-36 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base shadow-sm
-                                ${document.documentElement.classList.contains("dark")
-                                                                    ? "bg-gray-800 border-gray-700 text-white"
-                                                                    : "bg-white border-gray-300 text-gray-800"} 
-                            `}
-                                                        />
-
-
-                                                        <button
-                                                            className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-full font-medium shadow-md transition-transform transform hover:scale-105 hover:-translate-y-0.5 text-sm sm:text-base"
-                                                            onClick={submitRowAction}
-                                                        >
-                                                            <FaCheck className="text-xs sm:text-sm" /> Save
-                                                        </button>
-                                                        <button
-                                                            className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-gray-300 to-gray-400 hover:from-gray-400 hover:to-gray-500 text-gray-900 px-5 sm:px-6 py-2 sm:py-2.5 rounded-full font-medium shadow-sm transition-transform transform hover:scale-105 hover:-translate-y-0.5 text-sm sm:text-base"
-                                                            onClick={() => setRowAction(null)}
-                                                        >
-                                                            <FaTimes className="text-xs sm:text-sm" /> Cancel
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
             </div>
 
-            {/* 🧨 Delete Confirmation Modal */}
+            {/* 🧨 Delete Confirmation Modal (unchanged) */}
             {deleteConfirm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
                     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 w-[90%] sm:w-[400px] text-center animate-fadeIn">
